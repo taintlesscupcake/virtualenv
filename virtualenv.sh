@@ -4,6 +4,8 @@ if [ -z "$ENV_HOME" ]; then
 fi
 export WORKON_HOME="$ENV_HOME/envs"
 
+source "$ENV_HOME/check_for_update.sh"
+
 mkenv() {
   if [ $# -ne 2 ]; then
     echo "Usage: mkenv <python_version> <env_name>"
