@@ -9,20 +9,16 @@ Follow these steps to install and configure the virtualenv setup on your system:
 1. **Clone the Repository**
    First, clone this repository into the `.virtualenvs` directory in your home folder by using the following command:
    ```bash
-   git clone https://your-repository-url.git ~/.virtualenvs
+   git clone https://github.com/taintlesscupcake/virtualenv ~/.virtualenvs
    ```
 
-2. **Environment Variable Setup**
-   You'll need to set an environment variable to use this virtualenv setup. Add the following line to your shell configuration file (`.zshrc` or `.bashrc`):
+2. **Virtualenv Setup**
+   Add env setup to shell run script. Add the following line to your shell configuration file (`.zshrc` or `.bashrc`):
    ```bash
    export ENV_HOME="$HOME/.virtualenvs"
-   ```
-
-3. **Source the Virtualenv Script**
-   To initialize the virtualenv configuration, source the `virtualenv.sh` script from your shell configuration file. Add this line to the end of your `.zshrc` or `.bashrc` to make sure it's executed every time a new shell is started:
-   ```bash
    source $ENV_HOME/virtualenv.sh
    ```
+
 
 ## Usage
 
