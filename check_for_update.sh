@@ -26,3 +26,5 @@ else
         echo "Update canceled."
     fi
 fi
+
+cd ~
