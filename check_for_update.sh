@@ -13,6 +13,7 @@ local_commit=$(git rev-parse HEAD)
 remote_commit=$(git rev-parse origin/$current_branch)
 
 if [ "$local_commit" = "$remote_commit" ]; then
+    cd ~
     return 0
 else
     echo "There are updates available for your repository."
