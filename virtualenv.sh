@@ -21,7 +21,7 @@ mkenv() {
       echo -n "Python 버전 '$requested_version'이 mise에 없습니다. 설치하시겠습니까? (y/n) "
       read answer
       if [ "$answer" = "y" ]; then
-        mise use --global python@"$requested_version"
+        mise install python@"$requested_version"
       else
         echo "Python 설치가 취소되었습니다."
         return 1
