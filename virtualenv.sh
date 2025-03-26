@@ -21,7 +21,7 @@ mkenv() {
       echo -n "Python 버전 '$requested_version'이 mise에 없습니다. 설치하시겠습니까? (y/n) "
       read answer
       if [ "$answer" = "y" ]; then
-        mise install python@"$requested_version"
+        mise use --global python@"$requested_version"
       else
         echo "Python 설치가 취소되었습니다."
         return 1
@@ -31,18 +31,47 @@ mkenv() {
     python_path=$(mise where python@"$requested_version")
   else
     # mise 없으면 asdf 사용
-    if ! asdf where python "$requested_version" >/dev/null 2>&1; then
-      echo -n "Python 버전 '$requested_version'이 asdf에 없습니다. 설치하시겠습니까? (y/n) "
-      read answer
-      if [ "$answer" = "y" ]; then
-        asdf install python "$requested_version"
+    installed_version="$requested_version"
+
+    python_path=$(asdf where python "$requested_version")
+    if [ "$python_path" = "Version not installed" ]; then
+      dot_count=$(echo "$requested_version" | awk -F"." '{print NF-1}')
+      if [ "$dot_count" -le 1 ]; then
+        echo -n "Python Version '$requested_version' does not have a patch version. Do you want to install the latest patch version for $requested_version? (y/n) "
+        read answer
+        if [ "$answer" = "y" ]; then
+          asdf install python latest:"$requested_version"
+          installed_version=$(asdf list python | sed 's/[ *]//g' | grep -E "^${requested_version}\.[0-9]+$" | tail -n 1)
+          echo "Python version selected: $installed_version"
+        else
+          echo "Python install canceled."
+          return 1
+        fi
       else
-        echo "Python 설치가 취소되었습니다."
-        return 1
+        echo -n "Python Version '$requested_version' is not installed. Do you want to install it? (y/n) "
+        read answer
+        if [ "$answer" = "y" ]; then
+          asdf install python "$requested_version"
+        else
+          echo "Python install canceled."
+          return 1
+        fi
       fi
     fi
 
-    python_path=$(asdf where python "$requested_version")
+    dot_count=$(echo "$installed_version" | awk -F"." '{print NF-1}')
+    if [ "$dot_count" -le 1 ]; then
+      echo -n "Python Version '$requested_version' does not have a patch version. Do you want to use the latest patch version for $requested_version? (y/n) "
+      read answer
+      if [ "$answer" = "y" ]; then
+        installed_version=$(asdf list python | sed 's/[ *]//g' | grep -E "^${requested_version}\.[0-9]+$" | tail -n 1)
+        echo "Python version selected: $installed_version"
+      else
+        echo "Python version selected: $installed_version"
+      fi
+    fi
+
+    python_path=$(asdf where python "$installed_version")
   fi
 
   if [ -z "$python_path" ]; then
@@ -52,6 +81,7 @@ mkenv() {
 
   virtualenv -p "$python_path/bin/python" "$WORKON_HOME/$env_name"
 }
+
 
 rmenv() {
   local force=0
