@@ -12,50 +12,32 @@ mkenv() {
     return 1
   fi
 
-  installed_version="$1" # 기본값을 요청된 버전으로 설정
+  requested_version="$1"
+  env_name="$2"
 
-  python_path=$(asdf where python "$1")
-  if [ "$python_path" = "Version not installed" ]; then
-    dot_count=$(echo "$1" | awk -F"." '{print NF-1}')
-    if [ "$dot_count" -le 1 ]; then
-      echo -n "Python Version '$1' does not have a patch version. Do you want to install the latest patch version for $1? (y/n) "
-      read answer
-      if [ "$answer" = "y" ]; then
-        asdf install python latest:$1
-        # 설치된 최신 버전을 찾습니다.
-        installed_version=$(asdf list python | sed 's/[* ]//g' | grep -E "^${1}\.[0-9]+$" | tail -n 1)
-        echo "Python version selected: $installed_version"s
-      else
-        echo "Python install canceled."
-        return 1
-      fi
+  # 'mise'를 사용하여 Python 버전 설치 및 경로 확인
+  if ! mise where python@"$requested_version" >/dev/null 2>&1; then
+    echo -n "Python 버전 '$requested_version'이 설치되어 있지 않습니다. 설치하시겠습니까? (y/n) "
+    read answer
+    if [ "$answer" = "y" ]; then
+      mise use --global python@"$requested_version"
     else
-      echo -n "Python Version '$1' is not installed. Do you want to install it? (y/n) "
-      read answer
-      if [ "$answer" = "y" ]; then
-        asdf install python "$1"
-        installed_version="$1"
-      else
-        echo "Python install canceled."
-        return 1
-      fi
+      echo "Python 설치가 취소되었습니다."
+      return 1
     fi
   fi
-  dot_count=$(echo "$installed_version" | awk -F"." '{print NF-1}')
-  if [ "$dot_count" -le 1 ]; then
-      echo -n "Python Version '$1' does not have a patch version. Do you want to use the latest patch version for $1? (y/n) "
-      read answer
-      if [ "$answer" = "y" ]; then
-        # 설치된 최신 버전을 찾습니다.
-        installed_version=$(asdf list python | sed 's/[* ]//g' | grep -E "^${1}\.[0-9]+$" | tail -n 1)
-        echo "Python version selected: $installed_version"
-      else
-        echo "Python version selected: $installed_version"
-      fi
-    fi
-  # 실제 설치된 버전을 사용하여 virtualenv를 생성합니다.
-  virtualenv -p $(asdf where python "$installed_version")/bin/python "$WORKON_HOME"/"$2"
+
+  # 설치된 Python 버전의 경로 확인
+  python_path=$(mise where python@"$requested_version")
+  if [ -z "$python_path" ]; then
+    echo "Python 버전 '$requested_version'의 경로를 찾을 수 없습니다."
+    return 1
+  fi
+
+  # 가상 환경 생성
+  virtualenv -p "$python_path/bin/python" "$WORKON_HOME/$env_name"
 }
+
 
 rmenv() {
   local force=0
