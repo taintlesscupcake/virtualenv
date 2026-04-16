@@ -1,5 +1,7 @@
 # Virtualenv Setup
 
+## This Project is currently deprecated. Please go to [taintlesscupcake/pvm](https://github.com/taintlesscupcake/pvm)
+
 This repository contains a personal virtualenv setup using **mise** and **virtualenv** to replace Anaconda for managing Python environments. It's designed to be simple, efficient, and flexible.
 
 ## Prerequisites
